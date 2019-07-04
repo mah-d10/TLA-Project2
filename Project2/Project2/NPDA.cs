@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
@@ -48,6 +49,37 @@ namespace Project2
                 this.AdjacencyList[s].Add(t);
                 this.Transitions.Add(new Transition(s, edge[1][0], edge[2][0], edge[3], t));
             }
+        }
+
+        public CFG ToCFG()
+        {
+            var productions = new Dictionary<string, List<RHS>>();
+            var start = $"({this.StartState}{this.BottomOfStack}{this.FinalState})";
+
+            foreach (var t in Transitions)
+                if (t.StackPush[0] == '_')
+                    try
+                    {
+                        productions[$"(q{t.Start}{t.StackPop}q{t.End})"].Add(new RHS(t.ReadInput));
+                    }
+                    catch (Exception)
+                    {
+                        productions[$"(q{t.Start}{t.StackPop}q{t.End})"] = new List<RHS>();
+                        productions[$"(q{t.Start}{t.StackPop}q{t.End})"].Add(new RHS(t.ReadInput));
+                    }
+                else
+                    for (int k = 0; k < this.StateCount; k++)
+                    {
+                        if (!productions.ContainsKey($"(q{t.Start}{t.StackPop}q{k})"))
+                            productions[$"(q{t.Start}{t.StackPop}q{k})"] = new List<RHS>();
+
+                        for (int l = 0; l < this.StateCount; l++)
+                        {
+                            productions[$"(q{t.Start}{t.StackPop}q{k})"].Add(new RHS(t.ReadInput,
+                                new List<string>() { $"(q{t.End}{t.StackPush[0]}q{l})", $"(q{l}{t.StackPush[1]}q{k})" }));
+                        }
+                    }
+            return new CFG(start, productions);
         }
     }
 }

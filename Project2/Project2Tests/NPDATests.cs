@@ -1,5 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
+using System.IO;
 
 namespace Project2.Tests
 {
@@ -35,6 +36,14 @@ namespace Project2.Tests
 
             for (int i = 0; i < ndpa.Transitions.Count; i++)
                 Assert.AreEqual(ndpa.Transitions[i], transitionsExpected[i]);
+        }
+
+        [TestMethod()]
+        public void ToCFGTest()
+        {
+            string path = @"..\..\..\TestData\1.txt";
+            var n = new NPDA(path);
+            File.WriteAllText(@"..\..\..\TestData\res_1.txt", n.ToCFG().ToString());
         }
     }
 }
