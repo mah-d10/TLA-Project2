@@ -3,6 +3,16 @@ using System.Text;
 
 namespace Project2
 {
+    public static class Util
+    {
+        public static string Stringify(this List<string> l)
+        {
+            var s = new StringBuilder();
+            l.ForEach(x => s.Append(x));
+            return s.ToString();
+        }
+    }
+
     public class CFG
     {
         public string StartVariable;
@@ -60,7 +70,6 @@ namespace Project2
                                 this.ProductionRules[key].Add(new RHS(terminal, vars));
                             }
 
-                bool flag = false;
                 foreach (var v in this.ProductionRules)
                     for (int r = v.Value.Count - 1; r >= 0; r--)
                     {
@@ -74,7 +83,7 @@ namespace Project2
             }
         }
 
-        public StringBuilder Check(string input, List<string> vars)
+        public StringBuilder Check(string input, List<string> vars, string passedInput)
         {
             if (input.Length == 0 && vars.Count == 0)
                 return new StringBuilder("");
@@ -90,10 +99,17 @@ namespace Project2
                     for (int k = 1; k < vars.Count; k++)
                         NextVarList.Add(vars[k]);
 
-                    var res = Check(input.Substring(1), NextVarList);
+                    var res = Check(input.Substring(1), NextVarList, passedInput + input[0]);
 
                     if (res.ToString() != "False")
-                        return new StringBuilder(rhs.ToString() + " ." + res);
+                        if (res.ToString().Length > 0)
+                        {
+                            if (passedInput.Length == 0)
+                                passedInput = StartVariable.ToString() + "=>";
+                            return new StringBuilder(passedInput + rhs.Terminal + NextVarList.Stringify() + "=>" + res);
+                        }
+                        else
+                            return new StringBuilder(passedInput + rhs.Terminal + NextVarList.Stringify());
                 }
 
             return new StringBuilder("False");

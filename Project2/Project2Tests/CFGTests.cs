@@ -10,41 +10,34 @@ namespace Project2.Tests
         [TestMethod()]
         public void ToStringTest()
         {
-            string path = @"..\..\..\TestData\2.txt";
+            string path = @"..\..\..\TestData\npda2.txt";
             var n = new NPDA(path);
             var expected = "(q00q0)->a(q00q0)(q01q0)\n(q0$q0)->_\n";
-            File.WriteAllText(@"..\..\..\TestData\res_2.txt", expected);
+            File.WriteAllText(@"..\..\..\TestData\cfg_2.txt", expected);
             Assert.AreEqual(n.ToCFG().ToString(), expected);
         }
 
         [TestMethod()]
         public void CheckTest()
         {
-            string path = @"..\..\..\TestData\1.txt";
+            string path = @"..\..\..\TestData\npda1.txt";
             var n = new NPDA(path);
             var cfg = n.ToCFG();
-            var res = cfg.RemoveNullables().Check("abba", new List<string>() { cfg.StartVariable });
-            if (res.ToString() == "False")
-                File.WriteAllText(@"..\..\..\TestData\check_1.txt", "False");
-            else
-            {
-                File.WriteAllText(@"..\..\..\TestData\check_1.txt", res.ToString());
-                //var derivation = new StringBuilder();
-                //for (int i = 0; i < res.Count; i++)
-                //    if (i == res.Count - 1)
-                //        derivation.Append($"{res[i]}=>");
-                //    else
-                //        derivation.Append($"{res[i]}");
-                //File.AppendAllText(@"..\..\..\TestData\check_1.txt", derivation.ToString());
-            }
+            var res = cfg.RemoveNullables().Check("abba", new List<string>() { cfg.StartVariable }, "");
+            File.WriteAllText(@"..\..\..\TestData\derivation_1.txt", res.ToString());
+            System.Console.WriteLine(res.ToString());
+            Assert.AreEqual("(q0$q1)=>a(q00q0)(q0$q1)=>ab(q0$q1)=>abb(q01q0)=>abba", res.ToString());
         }
 
         [TestMethod()]
         public void RemoveNullablesTest()
         {
-            string path = @"..\..\..\TestData\1.txt";
-            var n = new NPDA(path);
-            File.WriteAllText(@"..\..\..\TestData\removeNullable_1.txt", n.ToCFG().RemoveNullables().ToString());
+            var dict = new Dictionary<string, List<RHS>>();
+            dict.Add("S", new List<RHS> { new RHS('a', new List<string> { "M", "B" }) });
+            dict.Add("M", new List<RHS> { new RHS('a', new List<string> { "M", "B" }), new RHS('_') });
+            dict.Add("B", new List<RHS> { new RHS('b') });
+            var cfg = new CFG("S", dict);
+            Assert.AreEqual("S->aMB|aB\nM->aMB|aB\nB->b\n", cfg.RemoveNullables().ToString());
         }
     }
 }

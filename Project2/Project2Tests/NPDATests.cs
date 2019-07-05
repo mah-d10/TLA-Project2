@@ -1,6 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
-using System.IO;
 
 namespace Project2.Tests
 {
@@ -10,7 +9,7 @@ namespace Project2.Tests
         [TestMethod()]
         public void NPDATest()
         {
-            string path = @"..\..\..\TestData\1.txt";
+            string path = @"..\..\..\TestData\npda1.txt";
             var ndpa = new NPDA(path);
             Assert.AreEqual(ndpa.StateCount, 2);
             CollectionAssert.AreEqual(ndpa.Alphabet, new char[] { 'a', 'b' });
@@ -41,9 +40,12 @@ namespace Project2.Tests
         [TestMethod()]
         public void ToCFGTest()
         {
-            string path = @"..\..\..\TestData\1.txt";
+            string path = @"..\..\..\TestData\npda2.txt";
             var n = new NPDA(path);
-            File.WriteAllText(@"..\..\..\TestData\res_1.txt", n.ToCFG().ToString());
+            var cfg = n.ToCFG();
+            Assert.AreEqual(cfg.StartVariable, "(q0$q0)");
+            CollectionAssert.AreEqual(cfg.ProductionRules["(q0$q0)"], new List<RHS> { new RHS('_') });
+            CollectionAssert.AreEqual(cfg.ProductionRules["(q00q0)"], new List<RHS> { new RHS('a', new List<string> { "(q00q0)", "(q01q0)" }) });
         }
     }
 }
