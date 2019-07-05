@@ -31,12 +31,6 @@ namespace Project2
             return ans.ToString();
         }
 
-        public CFG ToChomsky()
-        {
-            this.RemoveNullables();
-            return this;
-        }
-
         public CFG RemoveNullables()
         {
             foreach (var key in this.ProductionRules.Keys)
@@ -80,9 +74,29 @@ namespace Project2
             }
         }
 
-        public List<string> Check(string input)
+        public StringBuilder Check(string input, List<string> vars)
         {
-            return new List<string> { input };
+            if (input.Length == 0 && vars.Count == 0)
+                return new StringBuilder("");
+            else if (input.Length != 0 && vars.Count == 0 || input.Length == 0 && vars.Count != 0)
+                return new StringBuilder("False");
+
+            foreach (RHS rhs in this.ProductionRules[vars[0]])
+                if (rhs.Terminal == input[0])
+                {
+                    var NextVarList = new List<string>();
+
+                    NextVarList.AddRange(rhs.Variables);
+                    for (int k = 1; k < vars.Count; k++)
+                        NextVarList.Add(vars[k]);
+
+                    var res = Check(input.Substring(1), NextVarList);
+
+                    if (res.ToString() != "False")
+                        return new StringBuilder(rhs.ToString() + " ." + res);
+                }
+
+            return new StringBuilder("False");
         }
     }
 }

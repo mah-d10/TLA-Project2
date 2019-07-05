@@ -1,6 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Collections.Generic;
 using System.IO;
-using System.Text;
 
 namespace Project2.Tests
 {
@@ -22,19 +22,20 @@ namespace Project2.Tests
         {
             string path = @"..\..\..\TestData\1.txt";
             var n = new NPDA(path);
-            var res = n.ToCFG().Check("abba");
-            if (res == null)
+            var cfg = n.ToCFG();
+            var res = cfg.RemoveNullables().Check("abba", new List<string>() { cfg.StartVariable });
+            if (res.ToString() == "False")
                 File.WriteAllText(@"..\..\..\TestData\check_1.txt", "False");
             else
             {
-                File.WriteAllText(@"..\..\..\TestData\check_1.txt", "True\n");
-                var derivation = new StringBuilder();
-                for (int i = 0; i < res.Count; i++)
-                    if (i == res.Count - 1)
-                        derivation.Append($"{res[i]}=>");
-                    else
-                        derivation.Append($"{res[i]}");
-                File.AppendAllText(@"..\..\..\TestData\check_1.txt", derivation.ToString());
+                File.WriteAllText(@"..\..\..\TestData\check_1.txt", res.ToString());
+                //var derivation = new StringBuilder();
+                //for (int i = 0; i < res.Count; i++)
+                //    if (i == res.Count - 1)
+                //        derivation.Append($"{res[i]}=>");
+                //    else
+                //        derivation.Append($"{res[i]}");
+                //File.AppendAllText(@"..\..\..\TestData\check_1.txt", derivation.ToString());
             }
         }
 
