@@ -54,7 +54,7 @@ namespace Project2
         public CFG ToCFG()
         {
             var productions = new Dictionary<string, List<RHS>>();
-            var start = $"({this.StartState}{this.BottomOfStack}{this.FinalState})";
+            var start = $"(q{this.StartState}{this.BottomOfStack}q{this.FinalState})";
 
             foreach (var t in Transitions)
                 if (t.StackPush[0] == '_')
